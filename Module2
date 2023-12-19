@@ -1,0 +1,197 @@
+Sub GetSummary()
+'===========================================================================================================================
+'   12-17-2023  James Pharis
+'
+'
+'   Loop through Projects List in "Interests" and find the average number of hours spent per day
+'
+'===========================================================================================================================
+'use End(xlUp) to determine Last Row with Data, in one column (column B)
+ 
+Dim lastRow As Long
+Dim StartRow As Long
+Dim CurrentRow As Long
+Dim SummaryRow As Long
+Dim CProject As String
+Dim LProject As String
+Dim ProjectSum As Integer
+Dim ProjSUN As Integer
+Dim ProjMON As Integer
+Dim ProjTUE As Integer
+Dim ProjWED As Integer
+Dim ProjTHU As Integer
+Dim ProjFRI As Integer
+Dim ProjSAT As Integer
+
+
+
+
+'--- Get last row with Data in it...
+'Rows.count returns the last row of the worksheet (which in Excel 2007 is 1,048,576); Cells(Rows.count, "B") returns the cell B1048576, ie. last cell in column B, and the code starts from this cell moving upwards; the code is bascially executing Range("B1048576").End(xlUp), and Range("B1048576").End(xlUp).Row finally returns the last row number.
+lastRow = ActiveSheet.Cells(Rows.Count, "B").End(xlUp).row 'lastrow = last row in column C with data
+LastRowData = lastRow
+'MsgBox lastRow
+
+Dim sh As Worksheet
+Dim rw As Range
+Dim RowCount As Integer
+Dim row As Integer
+Dim col As Integer
+
+'--- RESET SUMMARY VALUES IN COLUMNS M & T
+    Range("L4:T50").Select
+    Selection.ClearContents
+
+CProject = ""
+ProjectSum = 0
+          Set sh = ActiveSheet
+ sh.Cells(3, 12).Value = "Interests"
+ sh.Cells(3, 13).Value = "Total"
+ sh.Cells(3, 14).Value = "SUN"
+ sh.Cells(3, 15).Value = "MON"
+ sh.Cells(3, 16).Value = "TUE"
+ sh.Cells(3, 17).Value = "WED"
+ sh.Cells(3, 18).Value = "THU"
+ sh.Cells(3, 19).Value = "FRI"
+ sh.Cells(3, 20).Value = "SAT"
+
+
+'-- ITERATE THROUGH PROJECT NAMES......
+Dim zlastRow As Long
+Dim zrow As Integer
+Dim zcol As Integer
+Dim sumrow As Integer
+Dim sumcol As Integer
+Dim zsh As Worksheet
+Sheets("Interests").Select 'swapping to "Manga" sheet
+zlastRow = ActiveSheet.Cells(Rows.Count, "A").End(xlUp).row 'through project names in "Interests"
+
+zrow = 2    ' Interests Sheet
+zcol = 1    ' Interests Sheet
+sumrow = 4
+sumcol = 12
+
+
+While zrow <= zlastRow 'INTERESTS LOOP
+    
+        'MsgBox Cells(zrow, zcol).Value
+        CProject = Cells(zrow, zcol).Value 'iterating through Project names in "Interests" Sheet
+        ProjectSum = 0
+        
+        ProjSUN = 0
+        ProjMON = 0
+        ProjTUE = 0
+        ProjWED = 0
+        ProjTHU = 0
+        ProjFRI = 0
+        ProjSAT = 0
+        Sheets("Timesheet").Select 'swapping to "Timesheet" sheet
+        Range("B3").Select 'setting initial starting position for row & column
+        RowCount = 0
+        
+        '-- Set Cell to C3
+        row = 4 'used to be 4 (might have broken it)
+        col = 2
+
+            Set sh = ActiveSheet
+            While row <= lastRow 'TIMESHEET LOOP
+            
+                If sh.Cells(row, col).Value = CProject Then 'Does the project name in column C match the project name I am on in Configuration
+                    
+                    '--SUN
+                    If IsNumeric(sh.Cells(row, 4).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 4).Value
+                     ProjSUN = ProjSUN + sh.Cells(row, 4).Value
+                    End If
+                    
+                    '--MON
+                    If IsNumeric(sh.Cells(row, 5).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 5).Value 'finding sum of all Monday minutes
+                      ProjMON = ProjMON + sh.Cells(row, 5).Value 'finding sum of Monday minutes for a possible repeated project
+                    End If
+                    
+                    '--TUE
+                    If IsNumeric(sh.Cells(row, 6).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 6).Value
+                      ProjTUE = ProjTUE + sh.Cells(row, 6).Value
+                    End If
+                    
+                    '--WED
+                    If IsNumeric(sh.Cells(row, 7).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 7).Value
+                     ProjWED = ProjWED + sh.Cells(row, 7).Value
+                    End If
+                    
+                    '--THU
+                    If IsNumeric(sh.Cells(row, 8).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 8).Value
+                      ProjTHU = ProjTHU + sh.Cells(row, 8).Value
+                    End If
+                    
+                    '--FRI
+                    If IsNumeric(sh.Cells(row, 9).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 9).Value
+                      ProjFRI = ProjFRI + sh.Cells(row, 9).Value
+                    End If
+                    
+                    '-- SAT
+                    If IsNumeric(sh.Cells(row, 10).Value) Then
+                     ProjectSum = ProjectSum + sh.Cells(row, 10).Value
+                      ProjSAT = ProjSAT + sh.Cells(row, 10).Value
+                    End If
+                        
+                End If
+                
+                row = row + 1 'iterating to go down a row
+            Wend
+
+    If ProjectSum > 0 Then
+        sh.Cells(sumrow, sumcol).Value = CProject 'Putting in the Project name
+        sh.Cells(sumrow, sumcol + 1).Value = ProjectSum / 60 'putting numerical data in column M (not row 4)
+        
+        'PUTTING NUMERICAL DATA IN P-V
+        If ProjSUN > 0 Then
+            sh.Cells(sumrow, sumcol + 2).Value = ProjSUN / 60
+        End If
+        
+        If ProjMON > 0 Then
+            sh.Cells(sumrow, sumcol + 3).Value = ProjMON / 60
+        End If
+        
+        If ProjTUE > 0 Then
+            sh.Cells(sumrow, sumcol + 4).Value = ProjTUE / 60
+        End If
+        
+        If ProjWED > 0 Then
+            sh.Cells(sumrow, sumcol + 5).Value = ProjWED / 60
+        End If
+        
+        If ProjTHU > 0 Then
+            sh.Cells(sumrow, sumcol + 6).Value = ProjTHU / 60
+        End If
+        
+        If ProjFRI > 0 Then
+            sh.Cells(sumrow, sumcol + 7).Value = ProjFRI / 60
+        End If
+        
+        If ProjSAT > 0 Then
+            sh.Cells(sumrow, sumcol + 8).Value = ProjSAT / 60
+        End If
+              
+              
+        sumrow = sumrow + 1 'iterating to go down a row
+    End If
+    
+    Sheets("Interests").Select 'swapping back to "Interests" to select next project name \/
+    zrow = zrow + 1 'iterating for project name in "Interests"
+    
+ Wend
+    
+    
+ Sheets("Timesheet").Select 'ends in "Timesheet" sheet
+
+
+
+
+
+End Sub
